@@ -10,6 +10,8 @@ public class Order implements Serializable {
 
     private String name;
 
+    private Detaile detaile;
+
     public String getId() {
         return id;
     }
@@ -34,12 +36,21 @@ public class Order implements Serializable {
         this.name = name;
     }
 
+    public Detaile getDetaile() {
+        return detaile;
+    }
+
+    public void setDetaile(Detaile detaile) {
+        this.detaile = detaile;
+    }
+
     @Override
     public String toString() {
         return "Order{" +
                 "id='" + id + '\'' +
                 ", code='" + code + '\'' +
                 ", name='" + name + '\'' +
+                ", detaile=" + detaile +
                 '}';
     }
 }

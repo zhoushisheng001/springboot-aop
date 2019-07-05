@@ -1,6 +1,7 @@
 package com.zhuguang.zhou.controller;
 
 import com.zhuguang.zhou.annotation.PropertyFiltration;
+import com.zhuguang.zhou.model.Detaile;
 import com.zhuguang.zhou.model.Order;
 import com.zhuguang.zhou.model.ResponseData;
 import com.zhuguang.zhou.model.User;
@@ -26,7 +27,7 @@ public class UserController {
     }
 
     @PropertyFiltration(clazz = ResponseData.class,exclude = {"dataType","traceId","data.password",
-            "data.order.id","data.order.name"})
+            "data.order.id","data.order.name","data.order.detaile.id"})
     @GetMapping("/getUserData")
     public ResponseData<User> getUserData () {
         ResponseData<User> resp = new ResponseData<>();
@@ -36,6 +37,13 @@ public class UserController {
         order.setCode("AXZ12586");
         order.setName("雪花旺旺饼干");
         user.setOrder(order);
+        Detaile detaile = new Detaile();
+        detaile.setDetaName("好吃的饼干");
+        detaile.setId("781");
+        detaile.setPrice(158);
+        detaile.setGoods("食品");
+        detaile.setNumber(15L);
+        order.setDetaile(detaile);
         resp.setCode(12);
         resp.setMsg("sceess");
         resp.setTraceId("12586");
