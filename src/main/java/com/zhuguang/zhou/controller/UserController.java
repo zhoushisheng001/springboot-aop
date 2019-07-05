@@ -1,6 +1,7 @@
 package com.zhuguang.zhou.controller;
 
 import com.zhuguang.zhou.annotation.PropertyFiltration;
+import com.zhuguang.zhou.model.Order;
 import com.zhuguang.zhou.model.ResponseData;
 import com.zhuguang.zhou.model.User;
 import org.slf4j.Logger;
@@ -24,11 +25,17 @@ public class UserController {
         return user;
     }
 
-    @PropertyFiltration(clazz = ResponseData.class,exclude = ("user.password"))
+    @PropertyFiltration(clazz = ResponseData.class,exclude = {"dataType","traceId","data.password",
+            "data.order.id","data.order.name"})
     @GetMapping("/getUserData")
     public ResponseData<User> getUserData () {
         ResponseData<User> resp = new ResponseData<>();
         User user = new User(128L, "张山", "15818", "78715", new Date());
+        Order order = new Order();
+        order.setId("12586");
+        order.setCode("AXZ12586");
+        order.setName("雪花旺旺饼干");
+        user.setOrder(order);
         resp.setCode(12);
         resp.setMsg("sceess");
         resp.setTraceId("12586");

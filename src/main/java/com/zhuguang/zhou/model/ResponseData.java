@@ -19,11 +19,6 @@ public class ResponseData<T> {
 	private String traceId;
 
 	/**
-	 * 泛型类的类
-	 */
-	private Class<T> clazz;
-
-	/**
 	 * @return the code
 	 */
 	public int getCode() {

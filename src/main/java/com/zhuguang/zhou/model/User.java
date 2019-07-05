@@ -48,6 +48,8 @@ public class User implements Serializable{
      */
     private Date created;
 
+    private Order order;
+
     public Long getId() {
         return id;
     }
@@ -88,6 +90,14 @@ public class User implements Serializable{
         this.created = created;
     }
 
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -96,6 +106,7 @@ public class User implements Serializable{
                 ", password='" + password + '\'' +
                 ", phone='" + phone + '\'' +
                 ", created=" + created +
+                ", order=" + order +
                 '}';
     }
 }
