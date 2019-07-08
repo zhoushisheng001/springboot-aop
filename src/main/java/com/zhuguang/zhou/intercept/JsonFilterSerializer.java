@@ -1,16 +1,22 @@
 package com.zhuguang.zhou.intercept;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.zhuguang.zhou.model.ResponseData;
 import com.zhuguang.zhou.model.User;
+import com.zhuguang.zhou.utills.CollectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.*;
 
+/**
+ * @author zhoushisheng
+ * 对象返回过滤解析器
+ */
 public class JsonFilterSerializer {
 
     private static final String DYNC_INCLUDE = "DYNC_INCLUDE";//包含的标识
@@ -45,8 +51,9 @@ public class JsonFilterSerializer {
                     .addFilter(DYNC_INCLUDE, SimpleBeanPropertyFilter.filterOutAllExcept(include)));
             mapper.addMixIn(clazz, DynamicInclude.class);
         } else if (exclude != null && exclude.length > 0) {
-            Map<String, List> listMap = buildExclude(chaldClazz, exclude);
+            Map<String, Set> listMap = buildExclude(chaldClazz, exclude);
             exclude = (String[]) listMap.get(FILTER_EXCLUDE_NAME).toArray(new String[]{});
+            System.out.println("exclude：" + JSON.toJSONString(exclude));
             Class[] classes = (Class[]) listMap.get(FILTER_EXCLUDE_CLAZZ).toArray(new Class[]{});
             mapper.setFilterProvider(new SimpleFilterProvider()
                     .addFilter(DYNC_EXCLUDE, SimpleBeanPropertyFilter.serializeAllExcept(exclude)));
@@ -80,24 +87,25 @@ public class JsonFilterSerializer {
      * data.id
      * data.order.id
      */
-    private Map<String,List> buildExclude (Class clazz, String[] exclude) {
+    private Map<String,Set> buildExclude (Class clazz, String[] exclude) {
         try {
-            Map<String,List> retMap = new HashMap<>();
-            List<String> filters = new ArrayList<>();
+            Map<String,Set> retMap = new HashMap<>();
+            Set<String> filters = new HashSet<>();
             for (String exc : exclude) {
                  if (!exc.contains(".")) {
                      filters.add(exc);
                  } else if (exc.contains("data.")) {
                      exc = exc.replaceAll("data.","");
                      if (exc.contains(".")) {
-                         retMap = this.recBuildExclude(clazz, exc.split("\\."));
+                         Map<String,Set> amonMap = this.recBuildExclude(clazz, exc.split("\\."));
+                         buildRetNameClazz(retMap, amonMap);
                      } else {
                          filters.add(exc);
                      }
                  }
             }
             if (retMap.size() > 0 ) {
-                List list = retMap.get(FILTER_EXCLUDE_NAME);
+                Set list = retMap.get(FILTER_EXCLUDE_NAME);
                 list.addAll(filters);
             } else {
                 retMap.put(FILTER_EXCLUDE_NAME, filters);
@@ -110,17 +118,42 @@ public class JsonFilterSerializer {
     }
 
     /**
+     * 构建返回的名称和类
+     * @param retMap
+     * @param amonMap
+     */
+    private void buildRetNameClazz(Map<String, Set> retMap, Map<String, Set> amonMap) {
+        Set amonNameList = amonMap.get(FILTER_EXCLUDE_NAME);
+        Set amonClazzList = amonMap.get(FILTER_EXCLUDE_CLAZZ);
+        Set nameList = retMap.get(FILTER_EXCLUDE_NAME);
+        Set clazzList = retMap.get(FILTER_EXCLUDE_CLAZZ);
+        if (CollectionUtils.isEmpty(nameList) && CollectionUtils.isNotEmpty(amonNameList)) {
+            nameList = amonNameList;
+            retMap.put(FILTER_EXCLUDE_NAME,nameList);
+        } else if (CollectionUtils.isNotEmpty(nameList) && CollectionUtils.isNotEmpty(amonNameList)) {
+            nameList.addAll(amonNameList);
+        }
+        if (CollectionUtils.isEmpty(clazzList) && CollectionUtils.isNotEmpty(amonClazzList)) {
+            clazzList = amonClazzList;
+            retMap.put(FILTER_EXCLUDE_CLAZZ,clazzList);
+        } else if (CollectionUtils.isNotEmpty(clazzList) && CollectionUtils.isNotEmpty(amonClazzList)) {
+            clazzList.addAll(amonClazzList);
+        }
+    }
+
+    /**
      * data.order.id
      * 递归获得数据
      * @param clazz
      * @param exc
      * @return
      */
-    private Map<String,List> recBuildExclude (Class clazz, String[] exc) {
+    private Map<String,Set> recBuildExclude (Class clazz, String[] exc) {
         try {
-            Map<String,List> retMap = new HashMap<>();
-            List<String> filters = new ArrayList<>();
-            List<Class> classList = new ArrayList<>();
+            Map<String,Set> retMap = new HashMap<>();
+            Map<String, Set> listMap = new HashMap<>();
+            Set<String> filters = new HashSet<>();
+            Set<Class> classList = new HashSet<>();
             if (exc.length == 1) {
                 filters.add(exc[0]);
             } else if (exc.length == 2) {
@@ -132,7 +165,11 @@ public class JsonFilterSerializer {
                 classList.add(type);
                 String[] descStr = new String[exc.length-1];
                 System.arraycopy(exc,1,descStr,0,exc.length-1);
-                recBuildExclude(type,descStr);
+                listMap = recBuildExclude(type, descStr);
+            }
+            if (listMap.size() > 0) {
+                filters.addAll(listMap.get(FILTER_EXCLUDE_NAME));
+                classList.addAll(listMap.get(FILTER_EXCLUDE_CLAZZ));
             }
             retMap.put(FILTER_EXCLUDE_NAME, filters);
             retMap.put(FILTER_EXCLUDE_CLAZZ, classList);

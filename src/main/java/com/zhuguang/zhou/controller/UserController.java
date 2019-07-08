@@ -25,9 +25,9 @@ public class UserController {
         User user = new User(128L, "张山", "15818", "78715", new Date());
         return user;
     }
-
+    //detaName","dataType","traceId","password
     @PropertyFiltration(clazz = ResponseData.class,exclude = {"dataType","traceId","data.password",
-            "data.order.id","data.order.name","data.order.detaile.id"})
+            "data.order.id","data.order.name","data.order.detaile.id","data.order.detaile.detaName"})
     @GetMapping("/getUserData")
     public ResponseData<User> getUserData () {
         ResponseData<User> resp = new ResponseData<>();
