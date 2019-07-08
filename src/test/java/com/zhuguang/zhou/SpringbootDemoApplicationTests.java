@@ -1,5 +1,7 @@
 package com.zhuguang.zhou;
 
+import com.zhuguang.zhou.model.Clazz;
+import com.zhuguang.zhou.model.Student;
 import com.zhuguang.zhou.model.User;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,13 +13,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class SpringbootDemoApplicationTests {
 
 
@@ -57,6 +62,26 @@ public class SpringbootDemoApplicationTests {
                 return -(o1-o2);
             }
         });
+    }
+
+
+    @Test
+    public void test02 () throws Exception {
+        Class<Clazz> clazzClass = Clazz.class;
+        Field field = clazzClass.getDeclaredField("studentList");
+        System.out.println(field.getType());
+        if (field.getType() == List.class) {
+            System.out.println("list");
+        }
+        Type genericType = field.getGenericType();
+        System.out.println(genericType);
+        //说明是泛型类型
+        if (genericType instanceof ParameterizedType) {
+            ParameterizedType pt =  (ParameterizedType) genericType;
+            Clazz type = (Clazz)pt.getActualTypeArguments()[0];
+            System.out.println(type);
+        }
+
     }
 
 

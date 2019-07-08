@@ -1,16 +1,14 @@
 package com.zhuguang.zhou.controller;
 
 import com.zhuguang.zhou.annotation.PropertyFiltration;
-import com.zhuguang.zhou.model.Detaile;
-import com.zhuguang.zhou.model.Order;
-import com.zhuguang.zhou.model.ResponseData;
-import com.zhuguang.zhou.model.User;
+import com.zhuguang.zhou.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 @Controller
@@ -49,5 +47,38 @@ public class UserController {
         resp.setTraceId("12586");
         resp.setData(user);
         return resp;
+    }
+
+    @GetMapping(path = "/getClazzInfo")
+    @PropertyFiltration(clazz = ResponseData.class,exclude = {"dataType","data.studentList.love",
+            "data.studentList.sex"})
+    public ResponseData<Clazz> getClazzInfo () {
+        ResponseData<Clazz> resp = new ResponseData<>();
+        Clazz clazz = new Clazz();
+        clazz.setId(158);
+        clazz.setClazzName("五班");
+        clazz.setStudentNum(65);
+        Student stu1 = new Student();
+        stu1.setAge(25);
+        stu1.setName("张山");
+        stu1.setLove("数学");
+        stu1.setId(1);
+        stu1.setSex("男");
+        Student stu2 = new Student();
+        stu2.setAge(26);
+        stu2.setName("李思");
+        stu2.setLove("语文");
+        stu2.setId(2);
+        stu2.setSex("男");
+        clazz.setStudentList(new ArrayList<Student>(){{
+            add(stu1);
+            add(stu2);
+        }});
+        resp.setData(clazz);
+        resp.setCode(12);
+        resp.setMsg("sceess");
+        resp.setTraceId("12588");
+        return resp;
+
     }
 }

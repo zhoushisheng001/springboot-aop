@@ -10,6 +10,7 @@ import com.zhuguang.zhou.model.User;
 import com.zhuguang.zhou.utills.CollectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -52,11 +53,14 @@ public class JsonFilterSerializer {
             mapper.addMixIn(clazz, DynamicInclude.class);
         } else if (exclude != null && exclude.length > 0) {
             Map<String, Set> listMap = buildExclude(chaldClazz, exclude);
-            exclude = (String[]) listMap.get(FILTER_EXCLUDE_NAME).toArray(new String[]{});
+            exclude = CollectionUtils.isNotEmpty (listMap.get(FILTER_EXCLUDE_NAME)) ?
+                    (String[]) listMap.get(FILTER_EXCLUDE_NAME).toArray(new String[]{}):new String[]{};
             System.out.println("exclude：" + JSON.toJSONString(exclude));
-            Class[] classes = (Class[]) listMap.get(FILTER_EXCLUDE_CLAZZ).toArray(new Class[]{});
+            Class[] classes = CollectionUtils.isNotEmpty(listMap.get(FILTER_EXCLUDE_CLAZZ)) ?
+                    (Class[]) listMap.get(FILTER_EXCLUDE_CLAZZ).toArray(new Class[]{}):new Class[]{};
             mapper.setFilterProvider(new SimpleFilterProvider()
                     .addFilter(DYNC_EXCLUDE, SimpleBeanPropertyFilter.serializeAllExcept(exclude)));
+            System.out.println("excludeClazz：" + JSON.toJSONString(classes));
             mapper.addMixIn(clazz, DynamicExclude.class);
             mapper.addMixIn(chaldClazz,DynamicExclude.class);
             this.addMixInExclude(mapper,classes);
@@ -158,14 +162,16 @@ public class JsonFilterSerializer {
                 filters.add(exc[0]);
             } else if (exc.length == 2) {
                 Class<?> type = clazz.getDeclaredField(exc[0]).getType();
+                Class<?> newType = buildClazz(clazz, exc[0], type);
                 filters.add(exc[1]);
-                classList.add(type);
+                classList.add(newType);
             }else if (exc.length > 2) {
                 Class<?> type = clazz.getDeclaredField(exc[0]).getType();
-                classList.add(type);
+                Class<?> newType = buildClazz(clazz, exc[0], type);
+                classList.add(newType);
                 String[] descStr = new String[exc.length-1];
                 System.arraycopy(exc,1,descStr,0,exc.length-1);
-                listMap = recBuildExclude(type, descStr);
+                listMap = recBuildExclude(newType, descStr);
             }
             if (listMap.size() > 0) {
                 filters.addAll(listMap.get(FILTER_EXCLUDE_NAME));
@@ -180,9 +186,37 @@ public class JsonFilterSerializer {
         }
     }
 
+    /**
+     * 当数据类型为 list set Map 的时候找到对应的泛型数据类型
+     * @param clazz
+     * @param exc
+     * @param type
+     * @return
+     * @throws NoSuchFieldException
+     */
+    private Class<?> buildClazz (Class clazz, String exc, Class<?> type) throws NoSuchFieldException {
+        Class<?> newType = null;
+        if (type == List.class) {
+            Type genericType = clazz.getDeclaredField(exc).getGenericType();
+            if (genericType instanceof ParameterizedType) {
+                ParameterizedType paramType = (ParameterizedType) genericType;
+                Class inClazz = (Class) paramType.getActualTypeArguments()[0];
+                newType = inClazz;
+            }
+        } else if (type == Map.class) {
 
-
-
+        } else if (type == Set.class) {
+            Type genericType = clazz.getDeclaredField(exc).getGenericType();
+            if (genericType instanceof ParameterizedType) {
+                ParameterizedType paramType = (ParameterizedType) genericType;
+                Class inClazz = (Class) paramType.getActualTypeArguments()[0];
+                newType = inClazz;
+            }
+        } else {
+            newType = type;
+        }
+        return newType;
+    }
 
 
     public static void main(String[] args) throws Exception {
