@@ -84,5 +84,16 @@ public class SpringbootDemoApplicationTests {
 
     }
 
+    @Test
+    public void test03 () {
+        ArrayList<String> list = new ArrayList<>();
+        list.add("aaa");
+        list.add("bbb");
+        list.add("ccc");
+        System.out.println(list);
+        list.set(0,"ddd");
+        System.out.println(list);
+    }
+
 
 }

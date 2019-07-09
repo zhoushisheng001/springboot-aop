@@ -1,6 +1,7 @@
 package com.zhuguang.zhou.model;
 
 import java.io.Serializable;
+import java.util.Set;
 
 public class Student implements Serializable {
 
@@ -13,6 +14,8 @@ public class Student implements Serializable {
     private String sex;
 
     private String love;
+
+    private Set<Subject> subjects;
 
 
     public int getId() {
@@ -53,5 +56,13 @@ public class Student implements Serializable {
 
     public void setLove(String love) {
         this.love = love;
+    }
+
+    public Set<Subject> getSubjects() {
+        return subjects;
+    }
+
+    public void setSubjects(Set<Subject> subjects) {
+        this.subjects = subjects;
     }
 }

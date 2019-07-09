@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.method.support.ModelAndViewContainer;
@@ -35,9 +38,17 @@ public class PropertyIntercept implements HandlerMethodReturnValueHandler {
         response.getWriter().write(serializer.toJson(returnObject));
     }
 
+    /**
+     * 返回false就不执行上面的拦截器
+     * 这里主要是判断类上面有没有加上RestController,
+     * 和方法上面有没有加上RestController
+     * @param methodParameter
+     * @return
+     */
     @Override
     public boolean supportsReturnType(MethodParameter methodParameter) {
-        return methodParameter.hasMethodAnnotation(PropertyFiltration.class);
+        return methodParameter.hasMethodAnnotation(PropertyFiltration.class)
+                && methodParameter.getDeclaringClass().getAnnotation(RestController.class) != null;
     }
 
 }

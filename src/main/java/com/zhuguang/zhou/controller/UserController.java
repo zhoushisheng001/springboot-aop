@@ -5,13 +5,14 @@ import com.zhuguang.zhou.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
-@Controller
+@RestController
 public class UserController {
 
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
@@ -51,7 +52,7 @@ public class UserController {
 
     @GetMapping(path = "/getClazzInfo")
     @PropertyFiltration(clazz = ResponseData.class,exclude = {"dataType","data.studentList.love",
-            "data.studentList.sex"})
+            "data.studentList.sex","data.studentList.subjects.grade"})
     public ResponseData<Clazz> getClazzInfo () {
         ResponseData<Clazz> resp = new ResponseData<>();
         Clazz clazz = new Clazz();
@@ -74,6 +75,34 @@ public class UserController {
             add(stu1);
             add(stu2);
         }});
+        Subject sub1 = new Subject();
+        sub1.setId(1);
+        sub1.setName("语文");
+        sub1.setGrade(128);
+
+        Subject sub2 = new Subject();
+        sub2.setId(2);
+        sub2.setName("数学");
+        sub2.setGrade(145);
+        stu1.setSubjects(new HashSet<Subject>(){{
+            add(sub1);
+            add(sub2);
+        }});
+
+        Subject sub3 = new Subject();
+        sub3.setId(3);
+        sub3.setName("英语");
+        sub3.setGrade(128);
+
+        Subject sub4 = new Subject();
+        sub4.setId(4);
+        sub4.setName("理综");
+        sub4.setGrade(236);
+        stu2.setSubjects(new HashSet<Subject>(){{
+            add(sub3);
+            add(sub4);
+        }});
+
         resp.setData(clazz);
         resp.setCode(12);
         resp.setMsg("sceess");
