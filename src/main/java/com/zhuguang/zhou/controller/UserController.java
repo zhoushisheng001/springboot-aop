@@ -1,9 +1,12 @@
 package com.zhuguang.zhou.controller;
 
+import com.zhuguang.zhou.annotation.AopFilter;
 import com.zhuguang.zhou.annotation.PropertyFiltration;
 import com.zhuguang.zhou.model.*;
+import com.zhuguang.zhou.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +19,9 @@ import java.util.Set;
 public class UserController {
 
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @Autowired
+    private UserService userService;
 
     @PropertyFiltration(clazz = User.class,exclude = {"password"})
     @GetMapping("/getUserInfo")
@@ -109,5 +115,13 @@ public class UserController {
         resp.setTraceId("12588");
         return resp;
 
+    }
+
+    @GetMapping (path = "/getAopInfo")
+    public ResponseData<User> getAopInfo () {
+        ResponseData<User> resp = new ResponseData<>();
+        User aopInfo = userService.getAopInfo();
+        resp.setData(aopInfo);
+        return resp;
     }
 }

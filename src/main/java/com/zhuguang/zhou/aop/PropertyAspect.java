@@ -17,18 +17,18 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Map;
 
-//@Aspect
-//@Component
+@Aspect
+@Component
 public class PropertyAspect {
 
-    private static final String point ="@annotation(com.zhuguang.zhou.annotation.PropertyFiltration)";
+    private static final String point ="@annotation(com.zhuguang.zhou.annotation.AopFilter)";
 
     @Pointcut(point)
     public void pointCut (){};
 
     @Before("pointCut()" )
     public void beforeInfo (JoinPoint joinPoint) {
-        System.out.println("切面执行在这.............." );
+        System.out.println(".............方法执行前切面执行.............." );
     }
 
 

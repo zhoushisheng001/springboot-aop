@@ -1,7 +1,9 @@
 package com.zhuguang.zhou.mvc;
 
+import com.zhuguang.zhou.intercept.JsonPathArgumentResolver;
 import com.zhuguang.zhou.intercept.PropertyIntercept;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
@@ -22,8 +24,15 @@ public class WebMvcIntercept implements WebMvcConfigurer {
 
     }
 
-
-    /**
+    /** 在方法参数上面加 @JsonParam
+     * 添加参数解析器
+     * @param resolvers
+     */
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(new JsonPathArgumentResolver());
+    }
+/**
      * 其它资源路径
      */
 //    @Override
