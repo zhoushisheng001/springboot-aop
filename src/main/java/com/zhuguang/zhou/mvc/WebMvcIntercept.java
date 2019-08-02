@@ -5,6 +5,7 @@ import com.zhuguang.zhou.intercept.PropertyIntercept;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -32,6 +33,22 @@ public class WebMvcIntercept implements WebMvcConfigurer {
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(new JsonPathArgumentResolver());
     }
+
+
+    /**
+     * 处理跨域问题
+     * @param registry
+     */
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("*")
+                .allowedMethods("POST", "GET", "PUT", "OPTIONS", "DELETE","PATCH")
+                .allowedHeaders("*")
+                .maxAge(3600)  //单位为秒1h失效（跨域是前端发送ajax请求限制的）
+                .allowCredentials(true);
+    }
+
 /**
      * 其它资源路径
      */
